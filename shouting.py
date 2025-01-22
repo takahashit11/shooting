@@ -14,10 +14,10 @@ class Player:
         self.bullets = []
         self.size = 8
         self.shoot_cooldown = 0
-        self.power = 1  # 攻撃力
+        self.power = 1 
 
     def update(self):
-        # プレイヤーの移動
+     
         if pyxel.btn(pyxel.KEY_LEFT) and self.pos.x > 0:
             self.pos.x -= self.speed
         if pyxel.btn(pyxel.KEY_RIGHT) and self.pos.x < pyxel.width:
@@ -27,34 +27,34 @@ class Player:
         if pyxel.btn(pyxel.KEY_DOWN) and self.pos.y < pyxel.height:
             self.pos.y += self.speed
 
-        # 弾の発射 (Zキーで通常ショット)
+ 
         self.shoot_cooldown = max(0, self.shoot_cooldown - 1)
         if pyxel.btn(pyxel.KEY_Z) and self.shoot_cooldown == 0:
             if self.power == 1:
-                # 単発射撃
+               
                 self.bullets.append(Vec2(self.pos.x, self.pos.y - 10))
             elif self.power == 2:
-                # 2方向射撃
+               
                 self.bullets.append(Vec2(self.pos.x - 5, self.pos.y - 10))
                 self.bullets.append(Vec2(self.pos.x + 5, self.pos.y - 10))
             else:
-                # 3方向射撃
+            
                 self.bullets.append(Vec2(self.pos.x, self.pos.y - 10))
                 self.bullets.append(Vec2(self.pos.x - 8, self.pos.y - 8))
                 self.bullets.append(Vec2(self.pos.x + 8, self.pos.y - 8))
             self.shoot_cooldown = 5
 
-        # 弾の移動
+   
         for bullet in self.bullets[:]:
             bullet.y -= 6
             if bullet.y < 0:
                 self.bullets.remove(bullet)
 
     def draw(self):
-        # プレイヤーの描画
+        
         pyxel.rect(self.pos.x - 4, self.pos.y - 4, 8, 8, 11)
         
-        # 弾の描画
+      
         for bullet in self.bullets:
             pyxel.rect(bullet.x - 1, bullet.y - 4, 2, 8, 10)
 
@@ -64,9 +64,9 @@ class Enemy:
         self.bullets = []
         self.shoot_timer = 0
         self.pattern = randint(0, 2)
-        self.health = 10  # 体力
+        self.health = 10  
         self.alive = True
-        self.size = 16    # 当たり判定サイズ
+        self.size = 16    
 
     def update(self):
         if not self.alive:
@@ -77,7 +77,7 @@ class Enemy:
             self.shoot()
             self.shoot_timer = 0
 
-        # 弾の移動
+        
         for bullet in self.bullets[:]:
             bullet[0].x += bullet[1].x
             bullet[0].y += bullet[1].y
@@ -89,7 +89,7 @@ class Enemy:
         self.health -= damage
         if self.health <= 0:
             self.alive = False
-            self.bullets.clear()  # 敵が倒れたら弾を全て消去
+            self.bullets.clear()  
             return True
         return False
 
@@ -97,17 +97,17 @@ class Enemy:
         if not self.alive:
             return
 
-        if self.pattern == 0:  # 円形弾幕
+        if self.pattern == 0:  
             for angle in range(0, 360, 30):
                 rad = math.radians(angle)
                 velocity = Vec2(math.cos(rad) * 2, math.sin(rad) * 2)
                 self.bullets.append([Vec2(self.pos.x, self.pos.y), velocity])
-        elif self.pattern == 1:  # 扇状弾幕
+        elif self.pattern == 1: 
             for angle in range(-30, 31, 10):
                 rad = math.radians(angle + 90)
                 velocity = Vec2(math.cos(rad) * 2, math.sin(rad) * 2)
                 self.bullets.append([Vec2(self.pos.x, self.pos.y), velocity])
-        else:  # ランダム弾幕
+        else: 
             for _ in range(5):
                 angle = uniform(0, 360)
                 rad = math.radians(angle)
@@ -118,21 +118,21 @@ class Enemy:
         if not self.alive:
             return
             
-        # 敵の描画
+     
         pyxel.rect(self.pos.x - 8, self.pos.y - 8, 16, 16, 8)
         
-        # HPバーの描画
+     
         hp_width = (self.health / 10) * 16
         pyxel.rect(self.pos.x - 8, self.pos.y - 12, hp_width, 2, 11)
         
-        # 弾の描画
+        
         for bullet in self.bullets:
             pyxel.circ(bullet[0].x, bullet[0].y, 2, 14)
 
 class App:
     def __init__(self):
         pyxel.init(160, 240, title="Shooting Game")
-        self.game_state = "TITLE"  # "TITLE", "INSTRUCTION", "PLAYING", "GAME_OVER", "CLEAR"
+        self.game_state = "TITLE"  
         self.instruction_page = 0
         self.reset_game()
         pyxel.run(self.update, self.draw)
@@ -145,9 +145,9 @@ class App:
         self.power_items = []
 
     def check_collision(self):
-        # プレイヤーと敵の弾との衝突判定
+       
         for enemy in self.enemies:
-            if not enemy.alive:  # 倒れた敵の弾は無視
+            if not enemy.alive: 
                 continue
             for bullet in enemy.bullets:
                 dx = self.player.pos.x - bullet[0].x
@@ -155,7 +155,7 @@ class App:
                 if math.sqrt(dx * dx + dy * dy) < self.player.size:
                     self.game_over = True
 
-        # プレイヤーの弾と敵との衝突判定
+
         for enemy in self.enemies:
             if not enemy.alive:
                 continue
@@ -193,7 +193,7 @@ class App:
                     enemy.update()
                 self.check_collision()
                 
-                # パワーアップアイテムの処理
+         
                 for item in self.power_items[:]:
                     item.y += 1
                     dx = self.player.pos.x - item.x
@@ -204,7 +204,7 @@ class App:
                     elif item.y > pyxel.height:
                         self.power_items.remove(item)
                 
-                # クリア判定を追加
+        
                 if all(not enemy.alive for enemy in self.enemies):
                     self.game_state = "CLEAR"
             else:
@@ -237,11 +237,11 @@ class App:
             self.draw_clear()
 
     def draw_title(self):
-        # タイトル画面の描画
+     
         pyxel.text(45, 80, "DANMAKU SHOOTER", pyxel.frame_count % 16)
         pyxel.text(35, 140, "PRESS SPACE TO START", 7)
         
-        # 装飾的な弾幕パターンのアニメーション
+
         t = pyxel.frame_count
         for i in range(8):
             angle = t + i * 45
@@ -281,11 +281,11 @@ class App:
         for item in self.power_items:
             pyxel.circ(item.x, item.y, 4, 9)
         
-        # スコアとパワー表示
+
         pyxel.text(5, 5, f"SCORE: {self.score}", 7)
         pyxel.text(5, 15, f"POWER: {self.player.power}", 7)
         
-        # 残りの敵の数を表示
+
         enemies_left = sum(1 for enemy in self.enemies if enemy.alive)
         pyxel.text(5, 25, f"ENEMIES: {enemies_left}", 7)
 
@@ -295,14 +295,13 @@ class App:
         pyxel.text(45, 140, "FINAL SCORE: " + str(self.score), 7)
 
     def draw_clear(self):
-        # 虹色に変化するエフェクト
+      
         color = (pyxel.frame_count // 4) % 15 + 1
         
-        # クリアメッセージ
+   
         pyxel.text(60, 100, "STAGE CLEAR!", color)
         pyxel.text(45, 120, f"FINAL SCORE: {self.score}", 7)
-        
-        # 花火のようなエフェクト
+  
         t = pyxel.frame_count
         for i in range(8):
             angle = t + i * 45
@@ -310,8 +309,7 @@ class App:
             x = 80 + math.cos(math.radians(angle)) * radius
             y = 80 + math.sin(math.radians(angle)) * radius
             pyxel.circ(x, y, 2, (i + t) % 15 + 1)
-        
-        # リスタート案内
+
         if (pyxel.frame_count // 30) % 2 == 0:
             pyxel.text(35, 140, "PRESS R TO PLAY AGAIN", 7)
 
